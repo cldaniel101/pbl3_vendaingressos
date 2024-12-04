@@ -1,7 +1,7 @@
 
 package com.example.pbl3_test;
 
-import com.example.Usuario;
+import com.example.pbl3_test.Usuario;
 
 import java.io.IOException;
 import java.util.Date;

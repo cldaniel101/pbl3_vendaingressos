@@ -1,7 +1,6 @@
 
 package com.example.pbl3_test;
 
-import com.example.pbl3_test.Usuario;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 

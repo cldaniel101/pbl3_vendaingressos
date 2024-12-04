@@ -1,6 +1,7 @@
 module com.example.pbl3_test {
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.google.gson;
 
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
