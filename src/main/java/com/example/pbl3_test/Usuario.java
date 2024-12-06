@@ -196,8 +196,6 @@ public class Usuario {
         return false;
     }
 
-    // ATUALIZAÇÃO DE CÓDIGO
-    
     /**
      * Atualiza os dados do usuário.
      * 

@@ -1,4 +1,3 @@
-
 package com.example.pbl3_test;
 
 import com.google.gson.Gson;
@@ -20,26 +19,48 @@ public class Armazenamento {
     private final String baseDir;
 
     public Armazenamento() {
-        // Obtém o diretório de trabalho do projeto (onde o código está sendo executado)
-        String userHome = System.getProperty("user.home");
+        // Obtém o diretório do projeto (relativo ao repositório local)
+        String projectDir = System.getProperty("user.dir");
 
-        // Definindo o caminho para a pasta "Data" no desktop do usuário
-        this.baseDir = userHome + File.separator + "Desktop" + File.separator + "PBL3" + File.separator + "demo" + File.separator + "Data";
+        // Define o caminho para a pasta "Data" dentro do repositório
+        this.baseDir = projectDir + File.separator + "src" + File.separator + "main" + File.separator 
+                       + "java" + File.separator + "com" + File.separator + "example" + File.separator 
+                       + "pbl3_test" + File.separator + "Data";
 
         // Depuração: Exibe o caminho gerado
         System.out.println("Caminho gerado: " + this.baseDir);
     }
 
-    // Método para verificar se o diretório existe
-    public boolean verificarExistencia() {
-        File dir = new File(this.baseDir);
+    private void criarDiretorioSeNecessario(String caminho) {
+        File dir = new File(caminho);
         if (!dir.exists()) {
-            System.out.println("O diretório não existe: " + this.baseDir);
+            if (dir.mkdirs()) {
+                System.out.println("Diretório criado: " + caminho);
+            } else {
+                System.out.println("Falha ao criar diretório: " + caminho);
+            }
+        }
+    }
+
+    // Método para verificar e criar os diretórios necessários
+    public boolean verificarExistencia() {
+        File baseDirFile = new File(this.baseDir);
+        File usuariosDir = new File(this.baseDir + File.separator + "Usuarios");
+        File eventosDir = new File(this.baseDir + File.separator + "Eventos");
+
+        boolean baseCriado = baseDirFile.exists() || baseDirFile.mkdirs();
+        boolean usuariosCriado = usuariosDir.exists() || usuariosDir.mkdirs();
+        boolean eventosCriado = eventosDir.exists() || eventosDir.mkdirs();
+
+        if (baseCriado && usuariosCriado && eventosCriado) {
+            System.out.println("Todos os diretórios estão prontos: " + this.baseDir);
+            return true;
+        } else {
+            System.err.println("Falha ao criar os diretórios necessários!");
             return false;
         }
-        System.out.println("O diretório foi encontrado: " + this.baseDir);
-        return true;
     }
+
 
     /**
      * Armazena os dados de um usuário em um arquivo JSON.
@@ -50,7 +71,10 @@ public class Armazenamento {
         String jsonFile = gsonFile.toJson(usuario);
         String UserCPF = usuario.getCpf();
 
-        String caminhoArquivo = baseDir + File.separator + "Usuarios" + File.separator + UserCPF + ".json";
+        String caminhoDiretorio = baseDir + File.separator + "Usuarios";
+        criarDiretorioSeNecessario(caminhoDiretorio);
+
+        String caminhoArquivo = caminhoDiretorio + File.separator + UserCPF + ".json";
 
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(caminhoArquivo), "UTF-8")) {
             writer.write(jsonFile);
@@ -69,6 +93,12 @@ public class Armazenamento {
         Gson gson = new Gson();
         String caminhoArquivo = baseDir + File.separator + "Usuarios" + File.separator + cpf + ".json";
 
+        File arquivo = new File(caminhoArquivo);
+        if (!arquivo.exists()) {
+            System.out.println("Arquivo não encontrado: " + caminhoArquivo);
+            return null; // ou lance uma exceção personalizada, se necessário
+        }
+
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(caminhoArquivo), "UTF-8")) {
             Usuario usuario = gson.fromJson(reader, Usuario.class);
             System.out.println("Dados do usuário lidos com sucesso!");
@@ -79,11 +109,17 @@ public class Armazenamento {
         }
     }
 
+
     /**
      * Armazena os dados de um evento em um arquivo JSON.
      * @param evento o objeto {@code Evento} a ser armazenado
      */
     public void ArmazenarEvento(Evento evento) {
+        if (!verificarExistencia()) {
+            System.err.println("Erro: Não foi possível preparar os diretórios para salvar o evento.");
+            return;
+        }
+
         Gson gsonFile = new Gson();
         String jsonFile = gsonFile.toJson(evento);
         String eventoID = evento.getID();
@@ -92,7 +128,7 @@ public class Armazenamento {
 
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(caminhoArquivo), "UTF-8")) {
             writer.write(jsonFile);
-            System.out.println("Dados do evento armazenados com sucesso");
+            System.out.println("Dados do evento armazenados com sucesso!");
         } catch (IOException erro) {
             erro.printStackTrace();
         }

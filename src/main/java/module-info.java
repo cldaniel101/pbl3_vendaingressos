@@ -6,6 +6,7 @@ module com.example.pbl3_test {
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
 
-    opens com.example.pbl3_test to javafx.fxml;
+    opens com.example.pbl3_test to javafx.fxml, com.google.gson;
     exports com.example.pbl3_test;
+    exports com.example.pbl3_test.views;
 }
