@@ -13,19 +13,37 @@ import java.util.List;
  */
 public class Controller {
 
-    /**
-     * Cadastra um novo usuário no sistema.
-     * 
-     * @param username o nome de usuário do novo usuário
-     * @param senha a senha do usuário
-     * @param nome o nome completo do usuário
-     * @param cpf o CPF do usuário
-     * @param email o e-mail do usuário
-     * @param ativo indica se o usuário está ativo
-     * @return o objeto {@code Usuario} criado
-     */
+/**
+ * Cadastra um novo usuário no sistema.
+ * 
+ * @param username o nome de usuário do novo usuário
+ * @param senha a senha do usuário
+ * @param nome o nome completo do usuário
+ * @param cpf o CPF do usuário
+ * @param email o e-mail do usuário
+ * @param ativo indica se o usuário está ativo
+ * @return o objeto {@code Usuario} criado
+ */
     public Usuario cadastrarUsuario(String username, String senha, String nome, String cpf, String email, boolean ativo, Armazenamento dados) {
-        Usuario user = new Usuario( username,  senha,  nome,  cpf,  email, ativo);
+        // Validação de campos obrigatórios
+        if (username == null || username.isEmpty() ||
+            senha == null || senha.isEmpty() ||
+            nome == null || nome.isEmpty() ||
+            cpf == null || cpf.isEmpty() ||
+            email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Erro: Todos os campos são obrigatórios.");
+        }
+
+        // Validação do CPF
+        cpf = cpf.replaceAll("[^a-zA-Z0-9]", ""); // Limpa caracteres inválidos
+        if (!cpf.matches("\\d{11}")) {
+            throw new IllegalArgumentException("Erro: CPF deve conter 11 dígitos numéricos.");
+        }
+
+        // Criação do objeto usuário
+        Usuario user = new Usuario(username, senha, nome, cpf, email, ativo);
+
+        // Verifica se o CPF já existe
         if (dados.LerArquivoUsuario(user.getCpf()) == null) {
             dados.ArmazenamentoUser(user);
             System.out.println("Usuário armazenado com sucesso!");
@@ -213,22 +231,23 @@ public class Controller {
      * @throws IOException Caso ocorra um erro ao acessar os dados do usuário.
      */
     
-     public boolean loginUsuario(String CPF, String password, Armazenamento armazenamento) throws IOException {
+    public boolean loginUsuario(String CPF, String password, Armazenamento armazenamento) throws IOException {
         try {
-            // Obtém os dados do usuário do armazenamento
+            // Obtém os dados do usuário a partir do CPF
             Usuario verificador = armazenamento.LerArquivoUsuario(CPF);
-    
-            // Verifica se o usuário existe e se as credenciais são válidas
-            if (verificador != null && verificador.login(CPF, password)) {
+
+            // Verifica se o usuário existe e a senha está correta
+            if (verificador != null && verificador.getSenha().equals(password)) {
                 return true; // Login bem-sucedido
+            } else {
+                System.out.println("Credenciais inválidas.");
             }
         } catch (Exception e) {
-            // Lida com exceções que possam ocorrer durante o acesso ao armazenamento
+            // Imprime o erro para depuração
             e.printStackTrace();
         }
-    
+
         return false; // Retorna falso se algo falhar
     }
-
     
 }

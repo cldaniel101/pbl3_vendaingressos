@@ -156,7 +156,7 @@ public class Usuario {
      * @return {@code true} se o login for válido, {@code false} caso contrário
      */
     public boolean login(String username, String password) {
-        return this.username.equals(username) && this.password.equals(password);
+        return this.password.equals(password);
     }
 
     /**
