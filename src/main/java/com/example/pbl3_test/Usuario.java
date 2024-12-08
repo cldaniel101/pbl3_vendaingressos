@@ -1,10 +1,8 @@
-
-
 package com.example.pbl3_test;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * A classe {@code Usuario} representa um usuário do sistema de venda de ingressos.
@@ -188,14 +186,14 @@ public class Usuario {
      * @return {@code true} se o ingresso foi removido, {@code false} caso contrário
      */
     public boolean removeIngresso(Ingresso ingresso, Evento evento, Date dataAtual) {
-        if (evento.getData().before(dataAtual)) {
+        if (evento.getData().after(dataAtual)) {
             Ingressos.remove(ingresso);
             ingresso = null; // Excluir o objeto ingresso
             return true;
         }
         return false;
     }
-
+    
     /**
      * Atualiza os dados do usuário.
      * 

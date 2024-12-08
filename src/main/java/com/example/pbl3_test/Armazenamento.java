@@ -69,7 +69,7 @@ public class Armazenamento {
     public void ArmazenamentoUser(Usuario usuario) {
         Gson gsonFile = new Gson();
         String jsonFile = gsonFile.toJson(usuario);
-        String UserCPF = usuario.getCpf();
+        String UserCPF = usuario.getCpf().replaceAll("[^a-zA-Z0-9]", "");
 
         String caminhoDiretorio = baseDir + File.separator + "Usuarios";
         criarDiretorioSeNecessario(caminhoDiretorio);
