@@ -4,9 +4,10 @@ import com.example.pbl3_test.*;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,9 +30,6 @@ public class AppScreenView {
         this.controller = controller;
         this.armazenamento = armazenamento;
         this.lastCheckedIngressos = new ArrayList<>(usuario.getIngressos());
-
-        // Adiciona listener para mudar a interface quando o idioma for alterado
-        TranslationManager.getInstance().addLanguageChangeListener(this::refreshUI);
     }
 
     public void show() {
@@ -39,85 +37,78 @@ public class AppScreenView {
         ScrollPane eventListPane = createEventListPane();
         notificationBox = createNotificationBox();
 
-        HBox mainLayout = new HBox(10);
-        mainLayout.setAlignment(Pos.TOP_LEFT);
-        mainLayout.setStyle("-fx-padding: 20;");
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setStyle("-fx-padding: 20; -fx-background-color: #f3f4f6;");
+        
+        mainLayout.setLeft(userInfoBox);
+        mainLayout.setCenter(eventListPane);
+        mainLayout.setRight(notificationBox);
 
-        mainLayout.getChildren().addAll(userInfoBox, eventListPane, notificationBox);
-
-        Scene scene = new Scene(mainLayout, 1000, 600);
-        stage.setTitle(TranslationManager.getInstance().get("app.title"));
+        Scene scene = new Scene(mainLayout, 1100, 700);
+        stage.setTitle("Dashboard - " + usuario.getNome());
         stage.setScene(scene);
         stage.show();
     }
 
     private VBox createUserInfoBox() {
-        VBox userInfoBox = new VBox(10);
-        userInfoBox.setAlignment(Pos.TOP_LEFT);
-        userInfoBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-padding: 20; -fx-background-color: #ffffff;");
-        userInfoBox.setPrefWidth(250);
+        VBox userInfoBox = new VBox(15);
+        userInfoBox.setAlignment(Pos.TOP_CENTER);
+        userInfoBox.setStyle(
+                "-fx-border-color: #4caf50; -fx-border-width: 2; -fx-padding: 20; " +
+                "-fx-background-color: #ffffff; -fx-background-radius: 10; -fx-border-radius: 10;"
+        );
+        userInfoBox.setPrefWidth(300);
 
-        Label titleLabel = new Label(TranslationManager.getInstance().get("user.info"));
-        titleLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-        Label welcomeLabel = new Label(TranslationManager.getInstance().get("welcome", usuario.getNome()));
-        Label usernameLabel = new Label(TranslationManager.getInstance().get("username", usuario.getLogin()));
-        Label cpfLabel = new Label(TranslationManager.getInstance().get("cpf", usuario.getCpf()));
-        Label emailLabel = new Label(TranslationManager.getInstance().get("email", usuario.getEmail()));
+        Label titleLabel = new Label("Informações do Usuário");
+        titleLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #4caf50;");
+        
+        Label welcomeLabel = new Label("Bem-vindo(a), " + usuario.getNome());
+        welcomeLabel.setStyle("-fx-font-size: 14;");
 
-        Button listarIngressosButton = new Button(TranslationManager.getInstance().get("list.tickets"));
+        Button listarIngressosButton = createStyledButton("Ingressos", "#42a5f5");
         listarIngressosButton.setOnAction(event -> new ListarIngressosView(stage, usuario, controller, armazenamento).show());
 
-        Button listarRecibosButton = new Button(TranslationManager.getInstance().get("list.receipts"));
+        Button listarRecibosButton = createStyledButton("Recibos", "#42a5f5");
         listarRecibosButton.setOnAction(event -> new ListarRecibosView(stage, usuario, controller, armazenamento).show());
 
-        Button atualizarCadastroButton = new Button(TranslationManager.getInstance().get("update.profile"));
+        Button atualizarCadastroButton = createStyledButton("Atualizar Dados", "#ff9800");
         atualizarCadastroButton.setOnAction(event -> abrirAtualizarDados());
 
-        Button logoutButton = new Button(TranslationManager.getInstance().get("logout"));
-        logoutButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
+        Button logoutButton = createStyledButton("Sair", "#f44336");
         logoutButton.setOnAction(event -> new LoginRegisterView(stage).show());
 
-        userInfoBox.getChildren().addAll(
-                titleLabel, welcomeLabel, usernameLabel, cpfLabel, emailLabel,
-                listarIngressosButton, listarRecibosButton, atualizarCadastroButton, logoutButton
-        );
-
+        userInfoBox.getChildren().addAll(titleLabel, welcomeLabel, listarIngressosButton, listarRecibosButton, atualizarCadastroButton, logoutButton);
         return userInfoBox;
     }
 
-    private void abrirAtualizarDados() {
-        new ConfirmarLoginView(stage, usuario, controller, armazenamento).show();
-    }
-
     private ScrollPane createEventListPane() {
-        VBox eventListBox = new VBox(15);
-        eventListBox.setStyle("-fx-padding: 20; -fx-background-color: #ffffff;");
-        eventListBox.setAlignment(Pos.TOP_LEFT);
-
-        Label eventListLabel = new Label(TranslationManager.getInstance().get("available.events"));
-        eventListLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-        eventListBox.getChildren().add(eventListLabel);
+        VBox eventListBox = new VBox(20);
+        eventListBox.setAlignment(Pos.TOP_CENTER);
+        eventListBox.setStyle("-fx-padding: 20; -fx-background-color: #ffffff; -fx-background-radius: 10;");
+        
+        Label eventListLabel = new Label("Eventos Disponíveis");
+        eventListLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #4caf50;");
 
         List<String> eventosDisponiveis = armazenamento.listarEventosDisponiveis();
 
         if (eventosDisponiveis.isEmpty()) {
-            Label noEventsLabel = new Label(TranslationManager.getInstance().get("no.events"));
+            Label noEventsLabel = new Label("Nenhum evento disponível.");
             eventListBox.getChildren().add(noEventsLabel);
         } else {
             for (String eventoID : eventosDisponiveis) {
                 Evento evento = armazenamento.LerArquivoEvento(eventoID);
 
                 if (evento != null) {
-                    VBox eventBox = new VBox(8);
-                    eventBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10; -fx-background-color: #f0f0f0;");
+                    VBox eventBox = new VBox(10);
+                    eventBox.setStyle("-fx-border-color: #4caf50; -fx-border-width: 1; -fx-padding: 15; -fx-background-color: #e8f5e9; -fx-background-radius: 10;");
 
-                    Label eventName = new Label(TranslationManager.getInstance().get("event.name") + ": " + evento.getNome());
-                    Label eventDescription = new Label(TranslationManager.getInstance().get("event.description") + ": " + evento.getDescricao());
-                    Label eventDate = new Label(TranslationManager.getInstance().get("event.date") + ": " + formatDate(evento.getData()));
-                    Label ticketsAvailable = new Label(TranslationManager.getInstance().get("event.tickets.available", evento.getIngressos()));
+                    Label eventName = new Label("Nome: " + evento.getNome());
+                    eventName.setStyle("-fx-font-weight: bold;");
+                    Label eventDescription = new Label("Descrição: " + evento.getDescricao());
+                    Label eventDate = new Label("Data: " + formatDate(evento.getData()));
+                    Label ticketsAvailable = new Label("Ingressos: " + evento.getIngressos());
 
-                    Button buyButton = new Button(TranslationManager.getInstance().get("buy.ticket"));
-                    buyButton.setStyle("-fx-background-color: green; -fx-text-fill: white;");
+                    Button buyButton = createStyledButton("Comprar", "#4caf50");
                     buyButton.setOnAction(e -> openBuyTicketView(evento));
 
                     eventBox.getChildren().addAll(eventName, eventDescription, eventDate, ticketsAvailable, buyButton);
@@ -128,23 +119,41 @@ public class AppScreenView {
 
         ScrollPane scrollPane = new ScrollPane(eventListBox);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: #f9f9f9;");
-        scrollPane.setPrefWidth(600);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+        scrollPane.setPrefWidth(700);
 
         return scrollPane;
     }
 
     private VBox createNotificationBox() {
         VBox notificationBox = new VBox(15);
-        notificationBox.setAlignment(Pos.TOP_LEFT);
-        notificationBox.setStyle("-fx-background-color: #e0f7fa; -fx-border-color: black; -fx-border-width: 1; -fx-padding: 15;");
+        notificationBox.setAlignment(Pos.TOP_CENTER);
+        notificationBox.setStyle(
+                "-fx-background-color: #e3f2fd; -fx-border-color: #42a5f5; -fx-border-width: 2; " +
+                "-fx-padding: 20; -fx-background-radius: 10; -fx-border-radius: 10;"
+        );
         notificationBox.setPrefWidth(300);
 
-        Label notificationTitle = new Label(TranslationManager.getInstance().get("notifications"));
-        notificationTitle.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        Label notificationTitle = new Label("Notificações");
+        notificationTitle.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #42a5f5;");
         notificationBox.getChildren().add(notificationTitle);
 
         return notificationBox;
+    }
+
+    private Button createStyledButton(String text, String color) {
+        Button button = new Button(text);
+        button.setStyle(
+                "-fx-background-color: " + color + "; -fx-text-fill: white; " +
+                "-fx-font-size: 14; -fx-background-radius: 5;"
+        );
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: #ffffff; -fx-text-fill: " + color + "; -fx-border-color: " + color + "; -fx-border-width: 2;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-size: 14; -fx-background-radius: 5;"));
+        return button;
+    }
+
+    private void abrirAtualizarDados() {
+        new ConfirmarLoginView(stage, usuario, controller, armazenamento).show();
     }
 
     private void openBuyTicketView(Evento evento) {
@@ -154,12 +163,5 @@ public class AppScreenView {
     private String formatDate(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         return formatter.format(date);
-    }
-
-    // Método para atualizar a interface de acordo com a mudança de idioma
-    private void refreshUI() {
-        // Atualiza os textos da interface quando o idioma é alterado
-        stage.setTitle(TranslationManager.getInstance().get("app.title"));
-        // Outros componentes de UI podem ser atualizados conforme necessário
     }
 }

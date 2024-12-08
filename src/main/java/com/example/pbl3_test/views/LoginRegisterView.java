@@ -7,8 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -39,115 +38,113 @@ public class LoginRegisterView {
     }
 
     public void show() {
-        // Carrega o idioma salvo nas preferências
         TranslationManager.getInstance().loadLanguagePreference();
 
-        // Layout principal
-        VBox mainLayout = new VBox(10);
+        VBox mainLayout = new VBox(20);
         mainLayout.setAlignment(Pos.TOP_CENTER);
+        mainLayout.setStyle("-fx-background-color: #f5f7fa; -fx-padding: 20;");
 
-        // Adiciona o botão de seleção de idioma
+        Label titleLabel = new Label("IngressOnline");
+        titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4a90e2;");
+
         HBox languageBox = createLanguageSelector();
-        mainLayout.getChildren().add(languageBox);
-
-        // Layout horizontal para login e registro
         HBox formBox = createFormBox();
-        mainLayout.getChildren().add(formBox);
-        
-        Label titleLabel = new Label("Sistema de Venda de Ingressos");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: black;");
-        mainLayout.getChildren().add(0, titleLabel); // Adiciona no topo do layout
 
-        Scene scene = new Scene(mainLayout, 1000, 600);
+        mainLayout.getChildren().addAll(titleLabel, languageBox, formBox);
+
+        Scene scene = new Scene(mainLayout, 800, 600);
         stage.setTitle(TranslationManager.getInstance().get("app.title"));
         stage.setScene(scene);
         stage.show();
-        
     }
-
 
     private HBox createLanguageSelector() {
         languageLabel = new Label(TranslationManager.getInstance().get("select.language"));
+        languageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
         languageComboBox = new ComboBox<>();
-        languageComboBox.getItems().addAll("pt", "en"); // Adiciona as opções de idioma
-        languageComboBox.setValue(TranslationManager.getInstance().getCurrentLanguage()); // Carrega o idioma salvo
+        languageComboBox.getItems().addAll("pt", "en");
+        languageComboBox.setValue(TranslationManager.getInstance().getCurrentLanguage());
+        languageComboBox.setStyle("-fx-padding: 5;");
 
-        // Configura a mudança de idioma
         languageComboBox.setOnAction(event -> {
             String selectedLanguage = languageComboBox.getValue();
             TranslationManager.getInstance().setLanguage(selectedLanguage);
-            refreshUI(); // Atualiza a interface para refletir a mudança de idioma
+            refreshUI();
         });
 
         HBox languageBox = new HBox(10);
-        languageBox.setAlignment(Pos.CENTER_LEFT);
+        languageBox.setAlignment(Pos.CENTER);
         languageBox.getChildren().addAll(languageLabel, languageComboBox);
-        languageBox.setPrefWidth(200);
-        languageBox.setPrefHeight(100);
-
         return languageBox;
     }
 
-
     private HBox createFormBox() {
-        // Configuração do layout de login
         VBox loginBox = createLoginBox();
-        // Configuração do layout de registro
         VBox registerBox = createRegisterBox();
 
-        // Layout horizontal para login e registro
-        HBox formBox = new HBox(50);
+        HBox formBox = new HBox(40);
         formBox.setAlignment(Pos.CENTER);
+        formBox.setStyle("-fx-padding: 20;");
         formBox.getChildren().addAll(loginBox, registerBox);
         return formBox;
     }
 
     private VBox createLoginBox() {
-        VBox loginBox = new VBox(10);
+        VBox loginBox = new VBox(15);
         loginBox.setAlignment(Pos.CENTER);
-        loginBox.setPrefWidth(300);
-        loginBox.setPrefHeight(800);
-        loginBox.setLayoutY(50);
+        loginBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #4a90e2; -fx-border-radius: 8; -fx-padding: 20; -fx-border-width: 2; -fx-background-radius: 8;");
 
         userLabel = new Label(TranslationManager.getInstance().get("login.cpf"));
+        userLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #555;");
         TextField userField = new TextField();
+        userField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
+
         passLabel = new Label(TranslationManager.getInstance().get("login.password"));
+        passLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #555;");
         PasswordField passField = new PasswordField();
+        passField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
+
         loginButton = new Button(TranslationManager.getInstance().get("login.button"));
+        loginButton.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 6;");
         feedbackLabel = new Label();
 
         loginBox.getChildren().addAll(userLabel, userField, passLabel, passField, loginButton, feedbackLabel);
 
         loginButton.setOnAction(event -> handleLogin(userField, passField, feedbackLabel));
-        userField.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) handleLogin(userField, passField, feedbackLabel);
-        });
-        passField.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) handleLogin(userField, passField, feedbackLabel);
-        });
-
         return loginBox;
     }
 
     private VBox createRegisterBox() {
-        VBox registerBox = new VBox(10);
+        VBox registerBox = new VBox(15);
         registerBox.setAlignment(Pos.CENTER);
-        registerBox.setPrefWidth(300);
-        registerBox.setPrefHeight(800);
+        registerBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #4a90e2; -fx-border-radius: 8; -fx-padding: 20; -fx-border-width: 2; -fx-background-radius: 8;");
 
         registrationLabel = new Label(TranslationManager.getInstance().get("register.new.user"));
+        registrationLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;");
+
         usernameField = new TextField();
         usernameField.setPromptText(TranslationManager.getInstance().get("register.username"));
+        usernameField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
+
         passwordField = new PasswordField();
         passwordField.setPromptText(TranslationManager.getInstance().get("register.password"));
+        passwordField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
+
         nameField = new TextField();
         nameField.setPromptText(TranslationManager.getInstance().get("register.full.name"));
+        nameField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
+
         cpfField = new TextField();
         cpfField.setPromptText(TranslationManager.getInstance().get("register.cpf"));
+        cpfField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
+
         emailField = new TextField();
         emailField.setPromptText(TranslationManager.getInstance().get("register.email"));
+        emailField.setStyle("-fx-padding: 8; -fx-border-color: #ccc; -fx-border-radius: 4;");
 
         submitButton = new Button(TranslationManager.getInstance().get("register.button"));
+        submitButton.setStyle("-fx-background-color: #4a90e2; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10; -fx-background-radius: 6;");
+
         registrationFeedback = new Label();
 
         registerBox.getChildren().addAll(registrationLabel, usernameField, passwordField, nameField, cpfField, emailField, submitButton, registrationFeedback);
@@ -159,6 +156,7 @@ public class LoginRegisterView {
 
         return registerBox;
     }
+
 
     private void handleLogin(TextField userField, PasswordField passField, Label feedbackLabel) {
         String cpf = userField.getText();
@@ -206,7 +204,6 @@ public class LoginRegisterView {
     }
 
     private void refreshUI() {
-        // Atualiza os textos dos elementos de UI com as mensagens de tradução
         languageLabel.setText(TranslationManager.getInstance().get("select.language"));
         userLabel.setText(TranslationManager.getInstance().get("login.cpf"));
         passLabel.setText(TranslationManager.getInstance().get("login.password"));
