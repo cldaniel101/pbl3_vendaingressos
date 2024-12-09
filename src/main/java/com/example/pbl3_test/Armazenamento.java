@@ -11,38 +11,29 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Classe responsável por gerenciar o armazenamento de dados dos usuários e eventos,
- * utilizando arquivos JSON para persistência.
+ * Classe responsável por gerenciar a persistência de dados de usuários e eventos,
+ * utilizando arquivos JSON como meio de armazenamento.
  */
 public class Armazenamento {
 
     private final String baseDir;
 
+    /**
+     * Construtor da classe, que inicializa o caminho base para os arquivos de dados.
+     */
     public Armazenamento() {
-        // Obtém o diretório do projeto (relativo ao repositório local)
         String projectDir = System.getProperty("user.dir");
-
-        // Define o caminho para a pasta "Data" dentro do repositório
-        this.baseDir = projectDir + File.separator + "src" + File.separator + "main" + File.separator 
-                       + "java" + File.separator + "com" + File.separator + "example" + File.separator 
-                       + "pbl3_test" + File.separator + "Data";
-
-        // Depuração: Exibe o caminho gerado
+        this.baseDir = projectDir + File.separator + "src" + File.separator + "main" + File.separator +
+                       "java" + File.separator + "com" + File.separator + "example" + File.separator +
+                       "pbl3_test" + File.separator + "Data";
         System.out.println("Caminho gerado: " + this.baseDir);
     }
 
-    private void criarDiretorioSeNecessario(String caminho) {
-        File dir = new File(caminho);
-        if (!dir.exists()) {
-            if (dir.mkdirs()) {
-                System.out.println("Diretório criado: " + caminho);
-            } else {
-                System.out.println("Falha ao criar diretório: " + caminho);
-            }
-        }
-    }
-
-    // Método para verificar e criar os diretórios necessários
+    /**
+     * Verifica e cria os diretórios necessários para armazenamento de dados.
+     *
+     * @return {@code true} se os diretórios foram criados ou já existiam; {@code false} em caso de erro.
+     */
     public boolean verificarExistencia() {
         File baseDirFile = new File(this.baseDir);
         File usuariosDir = new File(this.baseDir + File.separator + "Usuarios");
@@ -61,130 +52,143 @@ public class Armazenamento {
         }
     }
 
-
     /**
      * Armazena os dados de um usuário em um arquivo JSON.
-     * @param usuario o objeto {@code Usuario} a ser armazenado
+     *
+     * @param usuario o objeto {@code Usuario} a ser armazenado.
      */
-    public void ArmazenamentoUser(Usuario usuario) {
-        Gson gsonFile = new Gson();
-        String jsonFile = gsonFile.toJson(usuario);
-        String UserCPF = usuario.getCpf().replaceAll("[^a-zA-Z0-9]", "");
-
+    public void armazenarUsuario(Usuario usuario) {
+        Gson gson = new Gson();
+        String json = gson.toJson(usuario);
+        String userCpf = usuario.getCpf().replaceAll("[^a-zA-Z0-9]", "");
         String caminhoDiretorio = baseDir + File.separator + "Usuarios";
         criarDiretorioSeNecessario(caminhoDiretorio);
 
-        String caminhoArquivo = caminhoDiretorio + File.separator + UserCPF + ".json";
+        String caminhoArquivo = caminhoDiretorio + File.separator + userCpf + ".json";
 
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(caminhoArquivo), "UTF-8")) {
-            writer.write(jsonFile);
+            writer.write(json);
             System.out.println("Dados do usuário armazenados com sucesso!");
-        } catch (IOException erro) {
-            erro.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Erro ao armazenar os dados do usuário: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     /**
      * Lê os dados de um usuário a partir de um arquivo JSON.
-     * @param cpf o CPF do usuário para buscar os dados
-     * @return o objeto {@code Usuario} lido do arquivo, ou {@code null} se ocorrer um erro
+     *
+     * @param cpf o CPF do usuário para buscar os dados.
+     * @return o objeto {@code Usuario} lido do arquivo ou {@code null} em caso de erro.
      */
-    public Usuario LerArquivoUsuario(String cpf) {
+    public Usuario lerUsuario(String cpf) {
         Gson gson = new Gson();
         String caminhoArquivo = baseDir + File.separator + "Usuarios" + File.separator + cpf + ".json";
-
         File arquivo = new File(caminhoArquivo);
+
         if (!arquivo.exists()) {
             System.out.println("Arquivo não encontrado: " + caminhoArquivo);
-            return null; // ou lance uma exceção personalizada, se necessário
+            return null;
         }
 
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(caminhoArquivo), "UTF-8")) {
             Usuario usuario = gson.fromJson(reader, Usuario.class);
             System.out.println("Dados do usuário lidos com sucesso!");
             return usuario;
-        } catch (IOException | JsonSyntaxException erro) {
-            erro.printStackTrace();
+        } catch (IOException | JsonSyntaxException e) {
+            System.err.println("Erro ao ler os dados do usuário: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
 
-
     /**
      * Armazena os dados de um evento em um arquivo JSON.
-     * @param evento o objeto {@code Evento} a ser armazenado
+     *
+     * @param evento o objeto {@code Evento} a ser armazenado.
      */
-    public void ArmazenarEvento(Evento evento) {
+    public void armazenarEvento(Evento evento) {
         if (!verificarExistencia()) {
             System.err.println("Erro: Não foi possível preparar os diretórios para salvar o evento.");
             return;
         }
 
-        Gson gsonFile = new Gson();
-        String jsonFile = gsonFile.toJson(evento);
-        String eventoID = evento.getID();
-
-        String caminhoArquivo = baseDir + File.separator + "Eventos" + File.separator + eventoID + ".json";
+        Gson gson = new Gson();
+        String json = gson.toJson(evento);
+        String eventoId = evento.getID();
+        String caminhoArquivo = baseDir + File.separator + "Eventos" + File.separator + eventoId + ".json";
 
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(caminhoArquivo), "UTF-8")) {
-            writer.write(jsonFile);
+            writer.write(json);
             System.out.println("Dados do evento armazenados com sucesso!");
-        } catch (IOException erro) {
-            erro.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Erro ao armazenar os dados do evento: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     /**
      * Lê os dados de um evento a partir de um arquivo JSON.
-     * @param eventoid o ID do evento para buscar os dados
-     * @return o objeto {@code Evento} lido do arquivo, ou {@code null} se ocorrer um erro
+     *
+     * @param eventoId o ID do evento para buscar os dados.
+     * @return o objeto {@code Evento} lido do arquivo ou {@code null} em caso de erro.
      */
-    public Evento LerArquivoEvento(String eventoid) {
+    public Evento lerEvento(String eventoId) {
         Gson gson = new Gson();
-        String caminhoArquivo = baseDir + File.separator + "Eventos" + File.separator + eventoid + ".json";
+        String caminhoArquivo = baseDir + File.separator + "Eventos" + File.separator + eventoId + ".json";
 
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(caminhoArquivo), "UTF-8")) {
             Evento evento = gson.fromJson(reader, Evento.class);
-            System.out.println("Evento lido com sucesso");
+            System.out.println("Dados do evento lidos com sucesso!");
             return evento;
-        } catch (IOException | JsonSyntaxException erro) {
-            erro.printStackTrace();
+        } catch (IOException | JsonSyntaxException e) {
+            System.err.println("Erro ao ler os dados do evento: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
 
     /**
-     * Lista todos os arquivos JSON na pasta de eventos que possuem uma data posterior à data atual.
-     * @return uma lista com os nomes dos arquivos JSON na pasta Eventos com data posterior à data atual
+     * Lista todos os eventos futuros, baseando-se nos arquivos JSON na pasta de eventos.
+     *
+     * @return uma lista com os nomes dos eventos futuros.
      */
     public List<String> listarEventosDisponiveis() {
-        List<String> arquivosJson = new ArrayList<>();
+        List<String> eventosFuturos = new ArrayList<>();
         File diretorio = new File(baseDir + File.separator + "Eventos");
         Date dataAtual = new Date();
 
         if (diretorio.exists() && diretorio.isDirectory()) {
-            File[] arquivos = diretorio.listFiles();
+            File[] arquivos = diretorio.listFiles((dir, name) -> name.endsWith(".json"));
 
             if (arquivos != null) {
                 for (File arquivo : arquivos) {
-                    if (arquivo.isFile() && arquivo.getName().endsWith(".json")) {
-                        String nomeArquivo = arquivo.getName();
-                        String nomeEvento = nomeArquivo.substring(0, nomeArquivo.lastIndexOf(".json")); // Remover extensão
-                        String dataString = nomeEvento.substring(0, 6); // Pega os primeiros 6 caracteres (yymmdd)
+                    String nomeArquivo = arquivo.getName().replace(".json", "");
 
-                        try {
-                            Date dataArquivo = new SimpleDateFormat("yyMMdd").parse(dataString);
-                            if (dataArquivo.after(dataAtual)) {
-                                arquivosJson.add(nomeEvento); // Adiciona sem extensão
-                            }
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                    try {
+                        Date dataArquivo = new SimpleDateFormat("yyMMdd").parse(nomeArquivo.substring(0, 6));
+                        if (dataArquivo.after(dataAtual)) {
+                            eventosFuturos.add(nomeArquivo);
                         }
+                    } catch (ParseException e) {
+                        System.err.println("Erro ao processar o arquivo " + nomeArquivo + ": " + e.getMessage());
                     }
                 }
             }
         }
 
-        return arquivosJson;
+        return eventosFuturos;
+    }
+
+    /**
+     * Cria o diretório especificado, caso ele não exista.
+     *
+     * @param caminho o caminho do diretório a ser criado.
+     */
+    private void criarDiretorioSeNecessario(String caminho) {
+        File dir = new File(caminho);
+        if (!dir.exists() && dir.mkdirs()) {
+            System.out.println("Diretório criado: " + caminho);
+        }
     }
 }

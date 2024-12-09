@@ -95,8 +95,8 @@ public class AppScreenView {
             Label noEventsLabel = new Label("Nenhum evento disponível.");
             eventListBox.getChildren().add(noEventsLabel);
         } else {
-            for (String eventoID : eventosDisponiveis) {
-                Evento evento = armazenamento.LerArquivoEvento(eventoID);
+            for (String eventoId : eventosDisponiveis) {
+                Evento evento = armazenamento.lerEvento(eventoId);
 
                 if (evento != null) {
                     VBox eventBox = new VBox(10);

@@ -1,8 +1,6 @@
 
 package com.example.pbl3_test;
 
-import com.example.pbl3_test.Usuario;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -44,8 +42,8 @@ public class Controller {
         Usuario user = new Usuario(username, senha, nome, cpf, email, ativo);
 
         // Verifica se o CPF já existe
-        if (dados.LerArquivoUsuario(user.getCpf()) == null) {
-            dados.ArmazenamentoUser(user);
+        if (dados.lerUsuario(user.getCpf()) == null) {
+            dados.armazenarUsuario(user);
             System.out.println("Usuário armazenado com sucesso!");
             return user;
         } else {
@@ -68,7 +66,7 @@ public class Controller {
     public Evento cadastrarEvento(Usuario admin, String nome, String descricao, Date data, int ingressos, Armazenamento dados) {
         if (admin.isAdmin()) {
             Evento evento = new Evento(nome, descricao, data, ingressos);
-            dados.ArmazenarEvento(evento);
+            dados.armazenarEvento(evento);
             return evento;
         } else {
             throw new SecurityException("Somente administradores podem cadastrar eventos.");
@@ -78,7 +76,7 @@ public class Controller {
     public Evento cadastrarEvento(Usuario admin, String nome, String descricao, Date data, int ingressos, double preco,Armazenamento dados) {
         if (admin.isAdmin()) {
             Evento evento = new Evento(nome, descricao, data, ingressos, preco);
-            dados.ArmazenarEvento(evento);
+            dados.armazenarEvento(evento);
             return evento;
         } else {
             throw new SecurityException("Somente administradores podem cadastrar eventos.");
@@ -89,23 +87,23 @@ public class Controller {
      * Compra um ingresso para um usuário.
      *
      * @param usuario o usuário que está comprando o ingresso
-     * @param eventoID o ID do evento para o qual o ingresso está sendo comprado
+     * @param eventoId o ID do evento para o qual o ingresso está sendo comprado
      * @param dados a instância de {@code Armazenamento} para salvar os dados
      * @param pagamento o método de pagamento usado para a compra
      * @param data a data da compra do ingresso
      * @return o objeto {@code Ingresso} comprado
      */
-    public Ingresso comprarIngresso(Usuario usuario, String eventoID, Armazenamento dados, String pagamento, Date data) {
-        Evento EventoAtual = dados.LerArquivoEvento(eventoID);
+    public Ingresso comprarIngresso(Usuario usuario, String eventoId, Armazenamento dados, String pagamento, Date data) {
+        Evento EventoAtual = dados.lerEvento(eventoId);
         Ingresso ingresso = new Ingresso(EventoAtual, EventoAtual.getPreco());
-        Recibo recibo = new Recibo(usuario.getNome(), usuario.getCpf(), usuario.getEmail(), ingresso, pagamento, eventoID, data);
+        Recibo recibo = new Recibo(usuario.getNome(), usuario.getCpf(), usuario.getEmail(), ingresso, pagamento, eventoId, data);
 
         EventoAtual.setIngressos(EventoAtual.getIngressos() - 1);
         usuario.adicionarIngresso(ingresso);
         usuario.adicionarRecibo(recibo);
 
-        dados.ArmazenamentoUser(usuario);
-        dados.ArmazenarEvento(EventoAtual);
+        dados.armazenarUsuario(usuario);
+        dados.armazenarEvento(EventoAtual);
 
         System.out.println("Recibo enviado para " + usuario.getEmail());
         return ingresso;
@@ -122,11 +120,11 @@ public class Controller {
      */
     public boolean cancelarCompra(Usuario usuario, Ingresso ingresso, Date data, Armazenamento dados) {
         String eventoId = ingresso.getEventoID();
-        Evento evento = dados.LerArquivoEvento(eventoId);
+        Evento evento = dados.lerEvento(eventoId);
         if (usuario.removeIngresso(ingresso, evento, data)) {
             evento.setIngressos(evento.getIngressos() + 1);
-            dados.ArmazenarEvento(evento);
-            dados.ArmazenamentoUser(usuario);
+            dados.armazenarEvento(evento);
+            dados.armazenarUsuario(usuario);
         }
 
         return usuario.removeIngresso(ingresso, evento, data);
@@ -167,7 +165,7 @@ public class Controller {
     }
 
     public void ArmazenarDadosUsuario(Usuario usuario, Armazenamento dados) {
-       dados.ArmazenamentoUser(usuario);
+       dados.armazenarUsuario(usuario);
     }
 
     /**
@@ -178,7 +176,7 @@ public class Controller {
      * @return o objeto {@code Usuario} correspondente ao CPF fornecido
      */
     public Usuario LerDadosUsuario(String cpf, Armazenamento dados) {
-        return dados.LerArquivoUsuario(cpf);
+        return dados.lerUsuario(cpf);
     }
 
     /**
@@ -187,19 +185,19 @@ public class Controller {
      * @param evento o evento a ser armazenado
      * @param dados a instância de {@code Armazenamento} para salvar os dados
      */
-    public void ArmazenarEvento(Evento evento, Armazenamento dados) {
-        dados.ArmazenarEvento(evento);
+    public void armazenarEvento(Evento evento, Armazenamento dados) {
+        dados.armazenarEvento(evento);
     }
 
     /**
      * Lê os dados de um evento a partir do ID do evento.
      * 
-     * @param eventoID o ID do evento
+     * @param eventoId o ID do evento
      * @param dados a instância de {@code Armazenamento} para buscar os dados
      * @return o objeto {@code Evento} correspondente ao ID fornecido
      */
-    public Evento LerDadosEvento(String eventoID, Armazenamento dados) {
-        return dados.LerArquivoEvento(eventoID);
+    public Evento LerDadosEvento(String eventoId, Armazenamento dados) {
+        return dados.lerEvento(eventoId);
     }
 
     /**
@@ -215,7 +213,7 @@ public class Controller {
        
         if (usuario.getIngressos().stream().anyMatch(ingresso -> ingresso.getEventoID().equals(evento.getID()))) {
             evento.adicionarAvaliacao(usuario.getLogin(), avaliacao);
-            dados.ArmazenarEvento(evento);
+            dados.armazenarEvento(evento);
         } else {
             throw new SecurityException("Apenas usuários que participaram do evento podem avaliar.");
         }
@@ -234,7 +232,7 @@ public class Controller {
     public boolean loginUsuario(String CPF, String password, Armazenamento armazenamento) throws IOException {
         try {
             // Obtém os dados do usuário a partir do CPF
-            Usuario verificador = armazenamento.LerArquivoUsuario(CPF);
+            Usuario verificador = armazenamento.lerUsuario(CPF);
 
             // Verifica se o usuário existe e a senha está correta
             if (verificador != null && verificador.getSenha().equals(password)) {

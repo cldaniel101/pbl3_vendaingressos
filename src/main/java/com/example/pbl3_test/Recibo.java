@@ -13,7 +13,7 @@ public class Recibo {
     private String cpf;
     private String email;
     private Ingresso ingresso;
-    private String eventoID;
+    private String eventoId;
     private String Pagamento;
     private Date data;
 
@@ -25,16 +25,16 @@ public class Recibo {
      * @param email o e-mail do comprador
      * @param ingresso o ingresso associado ao recibo
      * @param pagamento o método de pagamento utilizado
-     * @param eventoID o ID do evento
+     * @param eventoId o ID do evento
      * @param data a data da transação
      */
-    public Recibo(String fullName, String cpf, String email, Ingresso ingresso, String pagamento, String eventoID, Date data) {
+    public Recibo(String fullName, String cpf, String email, Ingresso ingresso, String pagamento, String eventoId, Date data) {
         this.fullName = fullName;
         this.cpf = cpf;
         this.email = email;
         this.ingresso = ingresso;
         this.Pagamento = pagamento;
-        this.eventoID = eventoID;
+        this.eventoId = eventoId;
         this.data = data;    
     }
 
@@ -80,7 +80,7 @@ public class Recibo {
      * @return o ID do evento
      */
     public String getEventoID() {
-        return eventoID;
+        return eventoId;
     }
 
     /**

@@ -169,7 +169,7 @@ public class LoginRegisterView {
 
         try {
             if (controller.loginUsuario(cpf, password, armazenamentoDados)) {
-                Usuario user = armazenamentoDados.LerArquivoUsuario(cpf);
+                Usuario user = armazenamentoDados.lerUsuario(cpf);
                 new AppScreenView(stage, user, controller, armazenamentoDados).show();
             } else {
                 feedbackLabel.setText(TranslationManager.getInstance().get("error.invalid.credentials"));
@@ -194,7 +194,7 @@ public class LoginRegisterView {
 
         try {
             controller.cadastrarUsuario(username, password, name, cpf, email, false, armazenamentoDados);
-            Usuario user = armazenamentoDados.LerArquivoUsuario(cpf);
+            Usuario user = armazenamentoDados.lerUsuario(cpf);
             registrationFeedback.setText(TranslationManager.getInstance().get("registration.success"));
             new AppScreenView(stage, user, controller, armazenamentoDados).show();
         } catch (Exception e) {
