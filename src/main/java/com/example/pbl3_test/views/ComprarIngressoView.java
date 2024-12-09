@@ -29,68 +29,89 @@ public class ComprarIngressoView {
         this.selectedPaymentMethod = null;
     }
 
-    public void show() {
-        VBox mainBox = new VBox(20);
-        mainBox.setAlignment(Pos.CENTER);
-        mainBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-padding: 30; -fx-background-color: #f9f9f9;");
+public void show() {
+    BorderPane mainLayout = new BorderPane();
+    mainLayout.setStyle("-fx-background-color: linear-gradient(to bottom, #e3f2fd, #bbdefb); -fx-padding: 20;");
 
-        // Título
-        Label titleLabel = new Label(TranslationManager.getInstance().get("buy.ticket"));
-        titleLabel.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+    // Top Section - Título
+    Label titleLabel = new Label(TranslationManager.getInstance().get("buy.ticket"));
+    titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e88e5;");
+    StackPane topPane = new StackPane(titleLabel);
+    topPane.setStyle("-fx-padding: 10; -fx-background-color: #42a5f5; -fx-border-color: #1e88e5; -fx-border-width: 0 0 3 0;");
+    mainLayout.setTop(topPane);
 
-        // Informações do evento
-        Label eventName = new Label(TranslationManager.getInstance().get("event.name") + ": " + evento.getNome());
-        Label eventDescription = new Label(TranslationManager.getInstance().get("event.description") + ": " + evento.getDescricao());
-        Label eventDate = new Label(TranslationManager.getInstance().get("event.date") + ": " + formatDate(evento.getData()));
-        Label ticketPrice = new Label(TranslationManager.getInstance().get("event.tickets.price") + ": R$ " + ingresso.getPreco());
+    // Center Section - Informações do evento
+    VBox eventInfoBox = new VBox(10);
+    eventInfoBox.setAlignment(Pos.CENTER_LEFT);
+    eventInfoBox.setStyle("-fx-padding: 20; -fx-background-color: #ffffff; -fx-border-radius: 10; -fx-border-width: 2; -fx-border-color: #bbdefb;");
+    
+    Label eventName = new Label(TranslationManager.getInstance().get("event.name") + ": " + evento.getNome());
+    Label eventDescription = new Label(TranslationManager.getInstance().get("event.description") + ": " + evento.getDescricao());
+    Label eventDate = new Label(TranslationManager.getInstance().get("event.date") + ": " + formatDate(evento.getData()));
+    Label ticketPrice = new Label(TranslationManager.getInstance().get("event.tickets.price") + ": R$ " + ingresso.getPreco());
 
-        eventName.setStyle("-fx-font-size: 16;");
-        eventDescription.setStyle("-fx-font-size: 14;");
-        eventDate.setStyle("-fx-font-size: 14;");
-        ticketPrice.setStyle("-fx-font-size: 14;");
+    eventName.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+    eventDescription.setStyle("-fx-font-size: 16px;");
+    eventDate.setStyle("-fx-font-size: 16px;");
+    ticketPrice.setStyle("-fx-font-size: 16px; -fx-text-fill: #1e88e5;");
 
-        // Forma de pagamento
-        Label paymentLabel = new Label(TranslationManager.getInstance().get("select.payment"));
-        paymentLabel.setStyle("-fx-font-size: 14;");
+    eventInfoBox.getChildren().addAll(eventName, eventDescription, eventDate, ticketPrice);
 
-        ComboBox<String> paymentOptions = new ComboBox<>();
-        paymentOptions.getItems().addAll(
-                TranslationManager.getInstance().get("credit.card"),
-                TranslationManager.getInstance().get("bank.billet"),
-                TranslationManager.getInstance().get("pix")
-        );
-        paymentOptions.setPromptText(TranslationManager.getInstance().get("select.payment"));
+    // Forma de pagamento
+    Label paymentLabel = new Label(TranslationManager.getInstance().get("select.payment"));
+    paymentLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        HBox buttonBox = new HBox(15);
-        buttonBox.setAlignment(Pos.CENTER);
+    ComboBox<String> paymentOptions = new ComboBox<>();
+    paymentOptions.getItems().addAll(
+        TranslationManager.getInstance().get("credit.card"),
+        TranslationManager.getInstance().get("bank.billet"),
+        TranslationManager.getInstance().get("pix")
+    );
+    paymentOptions.setPromptText(TranslationManager.getInstance().get("select.payment"));
+    paymentOptions.setStyle("-fx-font-size: 14px; -fx-padding: 5;");
 
-        Button nextButton = new Button(TranslationManager.getInstance().get("next"));
-        nextButton.setStyle("-fx-background-color: green; -fx-text-fill: white;");
-        nextButton.setOnAction(e -> {
-            selectedPaymentMethod = paymentOptions.getValue();
-            if (selectedPaymentMethod == null || selectedPaymentMethod.isEmpty()) {
-                showAlert(TranslationManager.getInstance().get("error"), TranslationManager.getInstance().get("error.select.payment"));
-            } else {
-                showConfirmationScreen();
-            }
-        });
+    VBox paymentBox = new VBox(10, paymentLabel, paymentOptions);
+    paymentBox.setAlignment(Pos.CENTER_LEFT);
 
-        Button cancelButton = new Button(TranslationManager.getInstance().get("cancel"));
-        cancelButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
-        cancelButton.setOnAction(e -> new AppScreenView(stage, usuario, controller, armazenamento).show());
+    // Buttons Section
+    Button nextButton = new Button(TranslationManager.getInstance().get("next"));
+    nextButton.setStyle("-fx-background-color: #43a047; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 5;");
 
-        buttonBox.getChildren().addAll(nextButton, cancelButton);
+    Button cancelButton = new Button(TranslationManager.getInstance().get("cancel"));
+    cancelButton.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10; -fx-border-radius: 5;");
 
-        mainBox.getChildren().addAll(titleLabel, eventName, eventDescription, eventDate, ticketPrice, paymentLabel, paymentOptions, buttonBox);
+    HBox buttonBox = new HBox(20, nextButton, cancelButton);
+    buttonBox.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(mainBox, 1000, 600);
-        stage.setScene(scene);
-        stage.setTitle(TranslationManager.getInstance().get("buy.ticket"));
-        stage.show();
+    nextButton.setOnAction(e -> {
+        selectedPaymentMethod = paymentOptions.getValue();
+        if (selectedPaymentMethod == null || selectedPaymentMethod.isEmpty()) {
+            showAlert(TranslationManager.getInstance().get("error"), TranslationManager.getInstance().get("error.select.payment"));
+        } else {
+            showConfirmationScreen();
+        }
+    });
 
-        // Adiciona um listener para detectar mudanças de idioma e recarregar a tela
-        TranslationManager.getInstance().addLanguageChangeListener(this::refreshUI);
-    }
+    cancelButton.setOnAction(e -> new AppScreenView(stage, usuario, controller, armazenamento).show());
+
+    // Centralize tudo
+    VBox centerBox = new VBox(20, eventInfoBox, paymentBox, buttonBox);
+    centerBox.setAlignment(Pos.CENTER);
+    mainLayout.setCenter(centerBox);
+
+    // Footer - Créditos ou rodapé
+    Label footerLabel = new Label("© 2024 - Event Manager");
+    footerLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #757575;");
+    StackPane footerPane = new StackPane(footerLabel);
+    footerPane.setStyle("-fx-padding: 10; -fx-background-color: #e3f2fd;");
+    mainLayout.setBottom(footerPane);
+
+    // Configurar cena
+    Scene scene = new Scene(mainLayout, 800, 600);
+    stage.setScene(scene);
+    stage.setTitle(TranslationManager.getInstance().get("buy.ticket"));
+    stage.show();
+}
 
     private void showConfirmationScreen() {
         VBox confirmationBox = new VBox(20);

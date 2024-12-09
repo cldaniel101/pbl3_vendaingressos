@@ -3,16 +3,14 @@ package com.example.pbl3_test.views;
 import com.example.pbl3_test.Armazenamento;
 import com.example.pbl3_test.Controller;
 import com.example.pbl3_test.Usuario;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.io.IOException;
 
-/**
- * Tela para confirmar o login do usuário antes de atualizar os dados.
- */
 public class ConfirmarLoginView {
 
     private final Stage stage;
@@ -28,27 +26,43 @@ public class ConfirmarLoginView {
     }
 
     public void show() {
-        VBox layout = new VBox(15);
-        layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-padding: 20;");
+        // Criação de um layout principal
+        BorderPane layout = new BorderPane();
+        layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #ccc; -fx-border-width: 2px;");
 
-        // Mensagem inicial para identificação
+        // Cabeçalho com título
         Label tituloLabel = new Label(TranslationManager.getInstance().get("login.confirmation"));
-        tituloLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        tituloLabel.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #333;");
+        tituloLabel.setAlignment(Pos.CENTER);
 
-        // Campos para CPF e senha
+        VBox header = new VBox(tituloLabel);
+        header.setAlignment(Pos.CENTER);
+        header.setPadding(new Insets(10));
+        layout.setTop(header);
+
+        // Campos de entrada
         Label cpfLabel = new Label(TranslationManager.getInstance().get("enter.cpf"));
+        cpfLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #555;");
         TextField cpfField = new TextField();
         cpfField.setPromptText(TranslationManager.getInstance().get("cpf"));
+        cpfField.setStyle("-fx-background-color: #fff; -fx-border-radius: 5; -fx-padding: 5;");
 
         Label senhaLabel = new Label(TranslationManager.getInstance().get("enter.password"));
+        senhaLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #555;");
         PasswordField senhaField = new PasswordField();
         senhaField.setPromptText(TranslationManager.getInstance().get("password"));
+        senhaField.setStyle("-fx-background-color: #fff; -fx-border-radius: 5; -fx-padding: 5;");
 
-        // Botões de confirmar e cancelar
+        VBox inputFields = new VBox(10, cpfLabel, cpfField, senhaLabel, senhaField);
+        inputFields.setAlignment(Pos.CENTER_LEFT);
+        inputFields.setPadding(new Insets(20));
+        inputFields.setStyle("-fx-background-color: #fff; -fx-border-color: #ddd; -fx-border-radius: 10; -fx-padding: 15;");
+        layout.setCenter(inputFields);
+
+        // Botões
         Button confirmarButton = new Button(TranslationManager.getInstance().get("confirm"));
-        Button cancelarButton = new Button(TranslationManager.getInstance().get("cancel"));
-
+        confirmarButton.setStyle("-fx-background-color: #4caf50; -fx-text-fill: #fff; -fx-font-size: 14; -fx-padding: 10; -fx-border-radius: 5;");
         confirmarButton.setOnAction(event -> {
             try {
                 confirmarLogin(cpfField.getText().trim(), senhaField.getText());
@@ -56,13 +70,18 @@ public class ConfirmarLoginView {
                 showAlert(TranslationManager.getInstance().get("error"), TranslationManager.getInstance().get("error.accessing.storage"));
             }
         });
+
+        Button cancelarButton = new Button(TranslationManager.getInstance().get("cancel"));
+        cancelarButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: #fff; -fx-font-size: 14; -fx-padding: 10; -fx-border-radius: 5;");
         cancelarButton.setOnAction(event -> new AppScreenView(stage, usuario, controller, armazenamento).show());
 
-        layout.getChildren().addAll(
-                tituloLabel, cpfLabel, cpfField, senhaLabel, senhaField, confirmarButton, cancelarButton
-        );
+        HBox buttonBox = new HBox(15, confirmarButton, cancelarButton);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setPadding(new Insets(10));
+        layout.setBottom(buttonBox);
 
-        Scene scene = new Scene(layout, 600, 600);
+        // Criação da cena
+        Scene scene = new Scene(layout, 700, 500);
         stage.setScene(scene);
         stage.setTitle(TranslationManager.getInstance().get("login.confirmation"));
         stage.show();

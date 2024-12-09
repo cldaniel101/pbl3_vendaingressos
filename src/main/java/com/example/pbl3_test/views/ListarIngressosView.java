@@ -1,11 +1,13 @@
 package com.example.pbl3_test.views;
 
 import com.example.pbl3_test.*;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
 import java.util.Date;
 import java.util.List;
 
@@ -24,123 +26,108 @@ public class ListarIngressosView {
     }
 
     public void show() {
+        // Layout principal
         BorderPane mainLayout = new BorderPane();
+        mainLayout.setStyle("-fx-background-color: #f9f9f9;");
 
-        HBox contentLayout = new HBox(20); // Layout horizontal para ingressos
-        contentLayout.setStyle("-fx-padding: 20;");
+        // Barra superior com título
+        Label titleLabel = new Label(TranslationManager.getInstance().get("purchased.tickets"));
+        titleLabel.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #333;");
+        HBox header = new HBox(titleLabel);
+        header.setAlignment(Pos.CENTER);
+        header.setStyle("-fx-background-color: #4caf50; -fx-padding: 10;");
+        mainLayout.setTop(header);
+
+        // Layout das colunas de ingressos
+        HBox contentLayout = new HBox(20);
+        contentLayout.setPadding(new Insets(20));
 
         // Coluna de ingressos válidos
-        VBox validTicketsLayout = new VBox(15);
-        validTicketsLayout.setAlignment(Pos.TOP_LEFT);
-        validTicketsLayout.setPrefWidth(400);
-
-        Label validTicketsLabel = new Label(TranslationManager.getInstance().get("valid.tickets"));
-        validTicketsLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-        validTicketsLayout.getChildren().add(validTicketsLabel);
-
+        VBox validTicketsLayout = criarColunaIngressos("valid.tickets", "#d9f7be");
         // Coluna de ingressos inválidos
-        VBox invalidTicketsLayout = new VBox(15);
-        invalidTicketsLayout.setAlignment(Pos.TOP_LEFT);
-        invalidTicketsLayout.setPrefWidth(400);
+        VBox invalidTicketsLayout = criarColunaIngressos("invalid.tickets", "#ffd6e7");
 
-        Label invalidTicketsLabel = new Label(TranslationManager.getInstance().get("invalid.tickets"));
-        invalidTicketsLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-        invalidTicketsLayout.getChildren().add(invalidTicketsLabel);
-
-        // Carrega os ingressos do usuário
+        // Preenchimento das colunas
         List<Ingresso> ingressos = usuario.getIngressos();
-
         if (ingressos.isEmpty()) {
-            Label noTicketsLabel = new Label(TranslationManager.getInstance().get("no.tickets"));
-            validTicketsLayout.getChildren().add(noTicketsLabel);
+            validTicketsLayout.getChildren().add(new Label(TranslationManager.getInstance().get("no.tickets")));
         } else {
             for (Ingresso ingresso : ingressos) {
-                VBox ingressoBox = new VBox(5);
-                ingressoBox.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
-
-                Label ingressoInfo = new Label(TranslationManager.getInstance().get("ticket.id") + ": " + ingresso.getId());
-                Label eventoInfo = new Label(TranslationManager.getInstance().get("event.id") + ": " + ingresso.getEventoID());
-                Label precoInfo = new Label(TranslationManager.getInstance().get("price") + ": R$" + ingresso.getPreco());
-
+                VBox ingressoBox = criarCartaoIngresso(ingresso);
                 if (ingresso.isAtivo()) {
-                    // Botão para cancelar ingresso
-                    Button cancelButton = new Button(TranslationManager.getInstance().get("cancel.ticket"));
-                    cancelButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
-                    cancelButton.setOnAction(event -> {
-                        boolean sucesso = controller.cancelarCompra(usuario, ingresso, new Date(), armazenamento);
-                        if (sucesso) {
-                            show(); // Atualiza a tela
-                        } else {
-                            mostrarErro(TranslationManager.getInstance().get("error.cancel.ticket"));
-                        }
-                    });
-
-                    ingressoBox.getChildren().addAll(ingressoInfo, eventoInfo, precoInfo, cancelButton);
                     validTicketsLayout.getChildren().add(ingressoBox);
                 } else {
-                    Evento evento = armazenamento.LerArquivoEvento(ingresso.getEventoID());
-                    Label statusInfo = new Label(TranslationManager.getInstance().get("status.cancelled"));
-
-                    // Campo e botão para adicionar avaliação
-                    HBox evaluationBox = new HBox(5);
-                    TextField evaluationField = new TextField();
-                    evaluationField.setPromptText(TranslationManager.getInstance().get("rate.event"));
-                    Button evaluationButton = new Button(TranslationManager.getInstance().get("send.review"));
-                    evaluationButton.setOnAction(event -> {
-                        String avaliacao = evaluationField.getText();
-                        if (!avaliacao.isEmpty()) {
-                            try {
-                                controller.avaliarEvento(evento, usuario, avaliacao, armazenamento);
-                                mostrarMensagem(TranslationManager.getInstance().get("review.success"));
-                                evaluationField.clear();
-                            } catch (SecurityException e) {
-                                mostrarErro(TranslationManager.getInstance().get("error.no.review"));
-                            }
-                        }
-                    });
-
-                    evaluationBox.getChildren().addAll(evaluationField, evaluationButton);
-                    ingressoBox.getChildren().addAll(ingressoInfo, eventoInfo, statusInfo, evaluationBox);
                     invalidTicketsLayout.getChildren().add(ingressoBox);
                 }
             }
         }
 
-        // Adiciona as colunas ao layout horizontal com rolagem
+        // Scroll para as colunas
         ScrollPane validTicketsScrollPane = new ScrollPane(validTicketsLayout);
         validTicketsScrollPane.setFitToWidth(true);
-        validTicketsScrollPane.setPrefHeight(500);
 
         ScrollPane invalidTicketsScrollPane = new ScrollPane(invalidTicketsLayout);
         invalidTicketsScrollPane.setFitToWidth(true);
-        invalidTicketsScrollPane.setPrefHeight(500);
 
         contentLayout.getChildren().addAll(validTicketsScrollPane, invalidTicketsScrollPane);
+        mainLayout.setCenter(contentLayout);
 
-        // Botão para voltar à página inicial
+        // Botão de voltar
         Button backButton = new Button(TranslationManager.getInstance().get("back.to.home"));
+        backButton.setStyle("-fx-background-color: #4caf50; -fx-text-fill: white; -fx-padding: 10 20; -fx-font-size: 14;");
         backButton.setOnAction(event -> new AppScreenView(stage, usuario, controller, armazenamento).show());
 
-        HBox footerLayout = new HBox(backButton);
-        footerLayout.setAlignment(Pos.CENTER);
-        footerLayout.setStyle("-fx-padding: 10;");
+        HBox footer = new HBox(backButton);
+        footer.setAlignment(Pos.CENTER);
+        footer.setPadding(new Insets(15));
+        mainLayout.setBottom(footer);
 
-        // Adiciona as áreas ao layout principal
-        mainLayout.setCenter(contentLayout);
-        mainLayout.setBottom(footerLayout);
-
+        // Cena
         Scene scene = new Scene(mainLayout, 1000, 600);
         stage.setScene(scene);
         stage.setTitle(TranslationManager.getInstance().get("purchased.tickets"));
-        stage.setResizable(true);
         stage.show();
     }
 
-    private void mostrarMensagem(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+    private VBox criarColunaIngressos(String tituloKey, String bgColor) {
+        Label title = new Label(TranslationManager.getInstance().get(tituloKey));
+        title.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+
+        VBox column = new VBox(10, title);
+        column.setPadding(new Insets(15));
+        column.setStyle("-fx-background-color: " + bgColor + "; -fx-border-color: #ddd; -fx-border-radius: 10; -fx-padding: 10;");
+        column.setPrefWidth(400);
+
+        return column;
+    }
+
+    private VBox criarCartaoIngresso(Ingresso ingresso) {
+        VBox ingressoBox = new VBox(10);
+        ingressoBox.setPadding(new Insets(10));
+        ingressoBox.setStyle("-fx-background-color: #fff; -fx-border-color: #ddd; -fx-border-radius: 10;");
+
+        Label ingressoInfo = new Label(TranslationManager.getInstance().get("ticket.id") + ": " + ingresso.getId());
+        Label eventoInfo = new Label(TranslationManager.getInstance().get("event.id") + ": " + ingresso.getEventoID());
+        Label precoInfo = new Label(TranslationManager.getInstance().get("price") + ": R$" + ingresso.getPreco());
+
+        if (ingresso.isAtivo()) {
+            Button cancelButton = new Button(TranslationManager.getInstance().get("cancel.ticket"));
+            cancelButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
+            cancelButton.setOnAction(event -> {
+                boolean sucesso = controller.cancelarCompra(usuario, ingresso, new Date(), armazenamento);
+                if (sucesso) {
+                    show();
+                } else {
+                    mostrarErro(TranslationManager.getInstance().get("error.cancel.ticket"));
+                }
+            });
+            ingressoBox.getChildren().addAll(ingressoInfo, eventoInfo, precoInfo, cancelButton);
+        } else {
+            Label statusInfo = new Label(TranslationManager.getInstance().get("status.cancelled"));
+            ingressoBox.getChildren().addAll(ingressoInfo, eventoInfo, precoInfo, statusInfo);
+        }
+
+        return ingressoBox;
     }
 
     private void mostrarErro(String mensagem) {
