@@ -11,18 +11,34 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+/**
+ * Classe responsável pela gestão de traduções e troca de idiomas em uma aplicação.
+ * 
+ * <p>
+ * Esta classe é implementada como um Singleton para garantir que apenas uma
+ * instância gerencie o idioma atual da aplicação e forneça as traduções
+ * correspondentes.
+ * </p>
+ */
 public class TranslationManager {
-    private static TranslationManager instance;
-    private Locale currentLocale;
-    private ResourceBundle bundle;
-    private List<Runnable> languageChangeListeners = new ArrayList<>();
-    private static final Preferences preferences = Preferences.userNodeForPackage(TranslationManager.class);
+    private static TranslationManager instance; // Instância Singleton da classe
+    private Locale currentLocale; // Locale atual da aplicação
+    private ResourceBundle bundle; // ResourceBundle com as traduções carregadas
+    private List<Runnable> languageChangeListeners = new ArrayList<>(); // Listeners para alterações de idioma
+    private static final Preferences preferences = Preferences.userNodeForPackage(TranslationManager.class); // Preferências de idioma salvas
 
+    /**
+     * Construtor privado que inicializa o idioma a partir das preferências salvas.
+     */
     private TranslationManager() {
-        // Carrega o idioma salvo nas preferências
         loadLanguagePreference();
     }
 
+    /**
+     * Obtém a instância única do TranslationManager.
+     *
+     * @return Instância do TranslationManager.
+     */
     public static TranslationManager getInstance() {
         if (instance == null) {
             instance = new TranslationManager();
@@ -30,6 +46,11 @@ public class TranslationManager {
         return instance;
     }
 
+    /**
+     * Define o idioma atual da aplicação.
+     *
+     * @param languageCode Código ISO do idioma (ex.: "en" para inglês).
+     */
     public void setLanguage(String languageCode) {
         if (currentLocale == null || !currentLocale.getLanguage().equals(languageCode)) {
             this.currentLocale = new Locale(languageCode);
@@ -39,6 +60,12 @@ public class TranslationManager {
         }
     }
 
+    /**
+     * Define o idioma e o país atual da aplicação.
+     *
+     * @param languageCode Código ISO do idioma (ex.: "en").
+     * @param countryCode  Código ISO do país (ex.: "US").
+     */
     public void setLanguage(String languageCode, String countryCode) {
         if (currentLocale == null || !currentLocale.getLanguage().equals(languageCode) || !currentLocale.getCountry().equals(countryCode)) {
             this.currentLocale = new Locale(languageCode, countryCode);
@@ -48,9 +75,12 @@ public class TranslationManager {
         }
     }
 
+    /**
+     * Carrega o arquivo de tradução correspondente ao Locale atual.
+     */
     private void loadBundle() {
         try {
-            // Caminho absoluto no sistema de arquivos
+            // Caminho absoluto no sistema de arquivos para o arquivo de tradução
             String resourcePath = "src/main/java/com/example/pbl3_test/translations/messages_" + currentLocale.getLanguage() + ".properties";
             File file = new File(resourcePath);
 
@@ -71,6 +101,12 @@ public class TranslationManager {
         }
     }
 
+    /**
+     * Obtém a tradução correspondente a uma chave.
+     *
+     * @param key Chave da tradução.
+     * @return Texto traduzido ou a própria chave se não encontrada.
+     */
     public String get(String key) {
         try {
             return bundle.getString(key);
@@ -79,6 +115,13 @@ public class TranslationManager {
         }
     }
 
+    /**
+     * Obtém a tradução correspondente a uma chave, com suporte a formatação.
+     *
+     * @param key  Chave da tradução.
+     * @param args Argumentos para formatação.
+     * @return Texto traduzido formatado ou a própria chave se não encontrada.
+     */
     public String get(String key, Object... args) {
         try {
             String template = bundle.getString(key);
@@ -88,6 +131,12 @@ public class TranslationManager {
         }
     }
 
+    /**
+     * Verifica se há tradução disponível para uma determinada chave.
+     *
+     * @param key Chave da tradução.
+     * @return {@code true} se a chave tiver tradução; {@code false} caso contrário.
+     */
     public boolean hasTranslation(String key) {
         try {
             bundle.getString(key);
@@ -97,29 +146,56 @@ public class TranslationManager {
         }
     }
 
+    /**
+     * Retorna todas as chaves disponíveis no arquivo de tradução atual.
+     *
+     * @return Conjunto de chaves de tradução.
+     */
     public Set<String> getAllKeys() {
         return bundle.keySet();
     }
 
+    /**
+     * Retorna o código ISO do idioma atual.
+     *
+     * @return Código do idioma atual.
+     */
     public String getCurrentLanguage() {
         return currentLocale.getLanguage();
     }
 
+    /**
+     * Adiciona um listener para notificações de mudanças de idioma.
+     *
+     * @param listener Função a ser executada quando o idioma for alterado.
+     */
     public void addLanguageChangeListener(Runnable listener) {
         languageChangeListeners.add(listener);
     }
 
+    /**
+     * Notifica todos os listeners sobre uma mudança de idioma.
+     */
     private void notifyLanguageChange() {
         for (Runnable listener : languageChangeListeners) {
             listener.run();
         }
     }
 
+    /**
+     * Salva as preferências de idioma no armazenamento persistente.
+     *
+     * @param languageCode Código ISO do idioma.
+     * @param countryCode  Código ISO do país.
+     */
     private void saveLanguagePreference(String languageCode, String countryCode) {
         preferences.put("language", languageCode);
         preferences.put("country", countryCode);
     }
 
+    /**
+     * Carrega as preferências de idioma do armazenamento persistente.
+     */
     public void loadLanguagePreference() {
         String language = preferences.get("language", "pt"); // Valor padrão: português
         String country = preferences.get("country", "");

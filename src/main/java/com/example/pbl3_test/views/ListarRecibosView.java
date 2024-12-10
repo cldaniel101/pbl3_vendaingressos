@@ -14,6 +14,10 @@ import javafx.stage.Stage;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+/**
+ * Classe responsável por exibir a tela de listagem de recibos de compras de um usuário.
+ * Apresenta os recibos em formato de cartões contendo as informações relevantes.
+ */
 public class ListarRecibosView {
 
     private final Stage stage;
@@ -21,6 +25,14 @@ public class ListarRecibosView {
     private final Controller controller;
     private final Armazenamento armazenamento;
 
+    /**
+     * Construtor da classe ListarRecibosView.
+     *
+     * @param stage         Janela principal do JavaFX onde a tela será exibida.
+     * @param usuario       Usuário atual logado no sistema.
+     * @param controller    Controlador responsável pelas operações de negócios.
+     * @param armazenamento Instância do sistema de armazenamento.
+     */
     public ListarRecibosView(Stage stage, Usuario usuario, Controller controller, Armazenamento armazenamento) {
         this.stage = stage;
         this.usuario = usuario;
@@ -28,7 +40,12 @@ public class ListarRecibosView {
         this.armazenamento = armazenamento;
     }
 
+    /**
+     * Método principal para exibir a tela de listagem de recibos.
+     * Configura o layout, popula a lista de recibos e exibe a janela.
+     */
     public void show() {
+        // Layout principal
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: #f0f0f0;");
 
@@ -40,25 +57,27 @@ public class ListarRecibosView {
         titleBar.setAlignment(Pos.CENTER);
         mainLayout.setTop(titleBar);
 
-        // Layout para os recibos
+        // Layout para exibição dos recibos
         VBox recibosLayout = new VBox(15);
         recibosLayout.setPadding(new Insets(20));
 
-        // Obtem a lista de recibos
+        // Obtém a lista de recibos do usuário
         List<Recibo> recibos = controller.listarRecibos(usuario);
 
+        // Verifica se há recibos para exibir
         if (recibos.isEmpty()) {
             Label noReceiptsLabel = new Label(TranslationManager.getInstance().get("no.receipts"));
             noReceiptsLabel.setStyle("-fx-font-size: 16; -fx-text-fill: #555;");
             recibosLayout.getChildren().add(noReceiptsLabel);
         } else {
+            // Adiciona cada recibo como um cartão
             for (Recibo recibo : recibos) {
                 VBox reciboBox = criarCartaoRecibo(recibo);
                 recibosLayout.getChildren().add(reciboBox);
             }
         }
 
-        // Adiciona rolagem para os recibos
+        // Adiciona rolagem à lista de recibos
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(recibosLayout);
         scrollPane.setFitToWidth(true);
@@ -66,12 +85,10 @@ public class ListarRecibosView {
 
         mainLayout.setCenter(scrollPane);
 
-        // Botão de voltar
+        // Botão de voltar para a tela inicial
         Button backButton = new Button(TranslationManager.getInstance().get("back"));
         backButton.setStyle("-fx-background-color: #4caf50; -fx-text-fill: white; -fx-padding: 10 20; -fx-font-size: 14;");
-        backButton.setOnAction(event -> {
-            new AppScreenView(stage, usuario, controller, armazenamento).show();
-        });
+        backButton.setOnAction(event -> new AppScreenView(stage, usuario, controller, armazenamento).show());
 
         HBox footer = new HBox(backButton);
         footer.setAlignment(Pos.CENTER);
@@ -86,6 +103,12 @@ public class ListarRecibosView {
         stage.show();
     }
 
+    /**
+     * Cria um cartão de exibição para um recibo.
+     *
+     * @param recibo O recibo a ser exibido.
+     * @return Um VBox representando o cartão do recibo.
+     */
     private VBox criarCartaoRecibo(Recibo recibo) {
         VBox reciboBox = new VBox(10);
         reciboBox.setPadding(new Insets(15));
@@ -100,7 +123,7 @@ public class ListarRecibosView {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Label dataCompraInfo = new Label(TranslationManager.getInstance().get("purchase.date") + ": " + dateFormat.format(recibo.getData()));
 
-        // Estilizando as labels
+        // Aplica estilo às labels
         for (Label label : List.of(ingressoInfo, nomeUsuario, cpfUsuario, emailUsuario, pagamentoInfo, dataCompraInfo)) {
             label.setStyle("-fx-font-size: 14; -fx-text-fill: #555;");
         }

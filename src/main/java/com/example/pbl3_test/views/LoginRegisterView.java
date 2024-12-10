@@ -12,12 +12,16 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Classe responsável pela interface de login e registro de usuários.
+ * Exibe formulários para autenticação ou criação de conta.
+ */
 public class LoginRegisterView {
     private final Controller controller = new Controller();
     private final Armazenamento armazenamentoDados = new Armazenamento();
     private final Stage stage;
 
-    // Componentes de UI para serem atualizados
+    // Componentes de UI para serem atualizados dinamicamente
     private Label languageLabel;
     private ComboBox<String> languageComboBox;
     private Label userLabel;
@@ -33,10 +37,18 @@ public class LoginRegisterView {
     private Button submitButton;
     private Label registrationFeedback;
 
+    /**
+     * Construtor da classe LoginRegisterView.
+     * 
+     * @param stage o palco onde a cena será exibida.
+     */
     public LoginRegisterView(Stage stage) {
         this.stage = stage;
     }
 
+    /**
+     * Exibe a interface de login e registro no palco principal.
+     */
     public void show() {
         TranslationManager.getInstance().loadLanguagePreference();
 
@@ -58,6 +70,11 @@ public class LoginRegisterView {
         stage.show();
     }
 
+    /**
+     * Cria o seletor de idioma para a interface.
+     * 
+     * @return um HBox contendo o seletor de idioma.
+     */
     private HBox createLanguageSelector() {
         languageLabel = new Label(TranslationManager.getInstance().get("select.language"));
         languageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
@@ -66,6 +83,7 @@ public class LoginRegisterView {
         languageComboBox.setValue(TranslationManager.getInstance().getCurrentLanguage());
         languageComboBox.setStyle("-fx-padding: 5;");
 
+        // Define a troca de idioma ao selecionar um novo valor
         languageComboBox.setOnAction(event -> {
             String selectedLanguage = languageComboBox.getValue();
             TranslationManager.getInstance().setLanguage(selectedLanguage);
@@ -78,6 +96,11 @@ public class LoginRegisterView {
         return languageBox;
     }
 
+    /**
+     * Cria o layout que contém os formulários de login e registro.
+     * 
+     * @return um HBox contendo os dois formulários.
+     */
     private HBox createFormBox() {
         VBox loginBox = createLoginBox();
         VBox registerBox = createRegisterBox();
@@ -89,6 +112,11 @@ public class LoginRegisterView {
         return formBox;
     }
 
+    /**
+     * Cria o formulário de login.
+     * 
+     * @return um VBox contendo o formulário de login.
+     */
     private VBox createLoginBox() {
         VBox loginBox = new VBox(15);
         loginBox.setAlignment(Pos.CENTER);
@@ -110,10 +138,16 @@ public class LoginRegisterView {
 
         loginBox.getChildren().addAll(userLabel, userField, passLabel, passField, loginButton, feedbackLabel);
 
+        // Define a lógica para o botão de login
         loginButton.setOnAction(event -> handleLogin(userField, passField, feedbackLabel));
         return loginBox;
     }
 
+    /**
+     * Cria o formulário de registro de novos usuários.
+     * 
+     * @return um VBox contendo o formulário de registro.
+     */
     private VBox createRegisterBox() {
         VBox registerBox = new VBox(15);
         registerBox.setAlignment(Pos.CENTER);
@@ -149,6 +183,7 @@ public class LoginRegisterView {
 
         registerBox.getChildren().addAll(registrationLabel, usernameField, passwordField, nameField, cpfField, emailField, submitButton, registrationFeedback);
 
+        // Define a lógica para o botão de registro
         submitButton.setOnAction(event -> handleRegistration(usernameField, passwordField, nameField, cpfField, emailField, registrationFeedback));
         submitButton.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) handleRegistration(usernameField, passwordField, nameField, cpfField, emailField, registrationFeedback);

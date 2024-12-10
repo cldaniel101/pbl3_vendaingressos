@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"com.example.pbl3_test","l":"com.example.pbl3_test"},{"m":"com.example.pbl3_test","l":"com.example.pbl3_test.views"}];updateSearchResults();

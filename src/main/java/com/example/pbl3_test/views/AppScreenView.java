@@ -4,7 +4,6 @@ import com.example.pbl3_test.*;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -14,6 +13,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Classe responsável por exibir a tela principal do aplicativo (Dashboard).
+ * Apresenta informações do usuário, eventos disponíveis, e notificações.
+ */
 public class AppScreenView {
 
     private final Stage stage;
@@ -24,6 +27,14 @@ public class AppScreenView {
     private VBox notificationBox;
     private List<Ingresso> lastCheckedIngressos;
 
+    /**
+     * Construtor da classe AppScreenView.
+     *
+     * @param stage         Janela principal onde a tela será exibida.
+     * @param usuario       Usuário atualmente logado.
+     * @param controller    Controlador para gerenciar as ações.
+     * @param armazenamento Classe responsável por gerenciar os dados armazenados.
+     */
     public AppScreenView(Stage stage, Usuario usuario, Controller controller, Armazenamento armazenamento) {
         this.stage = stage;
         this.usuario = usuario;
@@ -32,6 +43,9 @@ public class AppScreenView {
         this.lastCheckedIngressos = new ArrayList<>(usuario.getIngressos());
     }
 
+    /**
+     * Exibe a tela principal do aplicativo.
+     */
     public void show() {
         VBox userInfoBox = createUserInfoBox();
         ScrollPane eventListPane = createEventListPane();
@@ -50,6 +64,11 @@ public class AppScreenView {
         stage.show();
     }
 
+    /**
+     * Cria o painel lateral com as informações do usuário e botões de ação.
+     *
+     * @return VBox contendo as informações e botões.
+     */
     private VBox createUserInfoBox() {
         VBox userInfoBox = new VBox(15);
         userInfoBox.setAlignment(Pos.TOP_CENTER);
@@ -81,6 +100,11 @@ public class AppScreenView {
         return userInfoBox;
     }
 
+    /**
+     * Cria o painel central que lista os eventos disponíveis.
+     *
+     * @return ScrollPane contendo a lista de eventos.
+     */
     private ScrollPane createEventListPane() {
         VBox eventListBox = new VBox(20);
         eventListBox.setAlignment(Pos.TOP_CENTER);
@@ -125,6 +149,11 @@ public class AppScreenView {
         return scrollPane;
     }
 
+    /**
+     * Cria o painel lateral direito que exibe notificações do usuário.
+     *
+     * @return VBox contendo as notificações.
+     */
     private VBox createNotificationBox() {
         VBox notificationBox = new VBox(15);
         notificationBox.setAlignment(Pos.TOP_CENTER);
@@ -141,6 +170,13 @@ public class AppScreenView {
         return notificationBox;
     }
 
+    /**
+     * Cria um botão estilizado com cores personalizadas.
+     *
+     * @param text  Texto exibido no botão.
+     * @param color Cor de fundo do botão.
+     * @return Botão estilizado.
+     */
     private Button createStyledButton(String text, String color) {
         Button button = new Button(text);
         button.setStyle(
@@ -152,14 +188,28 @@ public class AppScreenView {
         return button;
     }
 
+    /**
+     * Abre a tela para atualizar os dados do usuário.
+     */
     private void abrirAtualizarDados() {
         new ConfirmarLoginView(stage, usuario, controller, armazenamento).show();
     }
 
+    /**
+     * Abre a tela de compra de ingressos para o evento selecionado.
+     *
+     * @param evento Evento selecionado.
+     */
     private void openBuyTicketView(Evento evento) {
         new ComprarIngressoView(stage, usuario, evento, controller, armazenamento).show();
     }
 
+    /**
+     * Formata uma data no padrão dd/MM/yyyy.
+     *
+     * @param date Data a ser formatada.
+     * @return String representando a data formatada.
+     */
     private String formatDate(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         return formatter.format(date);

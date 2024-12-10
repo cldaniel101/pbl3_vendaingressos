@@ -11,6 +11,11 @@ import javafx.stage.Stage;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Classe responsável por exibir a tela de listagem de ingressos de um usuário.
+ * Apresenta ingressos válidos e inválidos em colunas separadas, permitindo
+ * o cancelamento de ingressos ativos.
+ */
 public class ListarIngressosView {
 
     private final Stage stage;
@@ -18,6 +23,14 @@ public class ListarIngressosView {
     private final Controller controller;
     private final Armazenamento armazenamento;
 
+    /**
+     * Construtor da classe ListarIngressosView.
+     *
+     * @param stage         Janela principal do JavaFX onde a tela será exibida.
+     * @param usuario       Usuário atual logado no sistema.
+     * @param controller    Controlador responsável pelas operações de negócios.
+     * @param armazenamento Instância do sistema de armazenamento.
+     */
     public ListarIngressosView(Stage stage, Usuario usuario, Controller controller, Armazenamento armazenamento) {
         this.stage = stage;
         this.usuario = usuario;
@@ -25,6 +38,10 @@ public class ListarIngressosView {
         this.armazenamento = armazenamento;
     }
 
+    /**
+     * Método principal para exibir a tela de listagem de ingressos.
+     * Configura o layout, popula as colunas de ingressos e exibe a janela.
+     */
     public void show() {
         // Layout principal
         BorderPane mainLayout = new BorderPane();
@@ -89,6 +106,13 @@ public class ListarIngressosView {
         stage.show();
     }
 
+    /**
+     * Cria uma coluna para exibição de ingressos.
+     *
+     * @param tituloKey Chave de tradução do título da coluna.
+     * @param bgColor   Cor de fundo da coluna.
+     * @return Um VBox representando a coluna de ingressos.
+     */
     private VBox criarColunaIngressos(String tituloKey, String bgColor) {
         Label title = new Label(TranslationManager.getInstance().get(tituloKey));
         title.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
@@ -101,6 +125,12 @@ public class ListarIngressosView {
         return column;
     }
 
+    /**
+     * Cria um cartão de exibição para um ingresso.
+     *
+     * @param ingresso O ingresso a ser exibido.
+     * @return Um VBox representando o cartão do ingresso.
+     */
     private VBox criarCartaoIngresso(Ingresso ingresso) {
         VBox ingressoBox = new VBox(10);
         ingressoBox.setPadding(new Insets(10));
@@ -116,7 +146,7 @@ public class ListarIngressosView {
             cancelButton.setOnAction(event -> {
                 boolean sucesso = controller.cancelarCompra(usuario, ingresso, new Date(), armazenamento);
                 if (sucesso) {
-                    show();
+                    show(); // Atualiza a tela após o cancelamento
                 } else {
                     mostrarErro(TranslationManager.getInstance().get("error.cancel.ticket"));
                 }
@@ -130,6 +160,11 @@ public class ListarIngressosView {
         return ingressoBox;
     }
 
+    /**
+     * Exibe uma mensagem de erro em um alerta.
+     *
+     * @param mensagem A mensagem de erro a ser exibida.
+     */
     private void mostrarErro(String mensagem) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(null);
